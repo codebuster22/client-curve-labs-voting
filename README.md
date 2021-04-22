@@ -1,0 +1,1 @@
+# Front-end for Curve Labs Voting App
