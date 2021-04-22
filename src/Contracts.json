@@ -1,0 +1,1271 @@
+{
+    "Storage":{
+        "address":"0xb906ff8E302d177F0A3b54cC576e10516E59B5ed",
+        "abi":[
+            {
+            	"inputs": [
+            		{
+            			"internalType": "address",
+            			"name": "_pool",
+            			"type": "address"
+            		}
+            	],
+            	"stateMutability": "nonpayable",
+            	"type": "constructor"
+            },
+            {
+            	"anonymous": false,
+            	"inputs": [
+            		{
+            			"indexed": true,
+            			"internalType": "address",
+            			"name": "canceller",
+            			"type": "address"
+            		},
+            		{
+            			"indexed": false,
+            			"internalType": "address",
+            			"name": "ballot_address",
+            			"type": "address"
+            		},
+            		{
+            			"indexed": true,
+            			"internalType": "uint256",
+            			"name": "ballot_id",
+            			"type": "uint256"
+            		},
+            		{
+            			"indexed": false,
+            			"internalType": "string",
+            			"name": "ballot_for",
+            			"type": "string"
+            		},
+            		{
+            			"indexed": false,
+            			"internalType": "uint256",
+            			"name": "timestamp",
+            			"type": "uint256"
+            		}
+            	],
+            	"name": "BallotCancelled",
+            	"type": "event"
+            },
+            {
+            	"anonymous": false,
+            	"inputs": [
+            		{
+            			"indexed": true,
+            			"internalType": "address",
+            			"name": "ballot_address",
+            			"type": "address"
+            		},
+            		{
+            			"indexed": true,
+            			"internalType": "uint256",
+            			"name": "ballot_id",
+            			"type": "uint256"
+            		},
+            		{
+            			"indexed": false,
+            			"internalType": "uint8",
+            			"name": "status",
+            			"type": "uint8"
+            		},
+            		{
+            			"indexed": false,
+            			"internalType": "uint256",
+            			"name": "timestamp",
+            			"type": "uint256"
+            		}
+            	],
+            	"name": "BallotStateChanged",
+            	"type": "event"
+            },
+            {
+            	"anonymous": false,
+            	"inputs": [
+            		{
+            			"indexed": true,
+            			"internalType": "address",
+            			"name": "prev_controller",
+            			"type": "address"
+            		},
+            		{
+            			"indexed": true,
+            			"internalType": "address",
+            			"name": "new_controller",
+            			"type": "address"
+            		},
+            		{
+            			"indexed": false,
+            			"internalType": "uint256",
+            			"name": "timestamp",
+            			"type": "uint256"
+            		}
+            	],
+            	"name": "ControllerChanged",
+            	"type": "event"
+            },
+            {
+            	"anonymous": false,
+            	"inputs": [
+            		{
+            			"indexed": true,
+            			"internalType": "address",
+            			"name": "creator",
+            			"type": "address"
+            		},
+            		{
+            			"indexed": false,
+            			"internalType": "address",
+            			"name": "ballot_address",
+            			"type": "address"
+            		},
+            		{
+            			"indexed": false,
+            			"internalType": "uint256",
+            			"name": "ballot_id",
+            			"type": "uint256"
+            		},
+            		{
+            			"indexed": false,
+            			"internalType": "string",
+            			"name": "ballot_for",
+            			"type": "string"
+            		},
+            		{
+            			"indexed": false,
+            			"internalType": "uint256",
+            			"name": "timestamp",
+            			"type": "uint256"
+            		}
+            	],
+            	"name": "NewBallotCreated",
+            	"type": "event"
+            },
+            {
+            	"anonymous": false,
+            	"inputs": [
+            		{
+            			"indexed": true,
+            			"internalType": "address",
+            			"name": "voter",
+            			"type": "address"
+            		},
+            		{
+            			"indexed": false,
+            			"internalType": "uint256",
+            			"name": "voter_id",
+            			"type": "uint256"
+            		},
+            		{
+            			"indexed": false,
+            			"internalType": "string",
+            			"name": "voter_name",
+            			"type": "string"
+            		},
+            		{
+            			"indexed": false,
+            			"internalType": "uint256",
+            			"name": "timestamp",
+            			"type": "uint256"
+            		}
+            	],
+            	"name": "NewVoterAdded",
+            	"type": "event"
+            },
+            {
+            	"inputs": [
+            		{
+            			"internalType": "address",
+            			"name": "",
+            			"type": "address"
+            		}
+            	],
+            	"name": "address_to_ballot_id",
+            	"outputs": [
+            		{
+            			"internalType": "uint256",
+            			"name": "",
+            			"type": "uint256"
+            		}
+            	],
+            	"stateMutability": "view",
+            	"type": "function"
+            },
+            {
+            	"inputs": [
+            		{
+            			"internalType": "address",
+            			"name": "",
+            			"type": "address"
+            		}
+            	],
+            	"name": "address_to_voter_id",
+            	"outputs": [
+            		{
+            			"internalType": "uint256",
+            			"name": "",
+            			"type": "uint256"
+            		}
+            	],
+            	"stateMutability": "view",
+            	"type": "function"
+            },
+            {
+            	"inputs": [],
+            	"name": "ballot_count",
+            	"outputs": [
+            		{
+            			"internalType": "uint256",
+            			"name": "",
+            			"type": "uint256"
+            		}
+            	],
+            	"stateMutability": "view",
+            	"type": "function"
+            },
+            {
+            	"inputs": [],
+            	"name": "bpool",
+            	"outputs": [
+            		{
+            			"internalType": "contract IBPool",
+            			"name": "",
+            			"type": "address"
+            		}
+            	],
+            	"stateMutability": "view",
+            	"type": "function"
+            },
+            {
+            	"inputs": [
+            		{
+            			"internalType": "uint256",
+            			"name": "_ballot_id",
+            			"type": "uint256"
+            		}
+            	],
+            	"name": "cancelBallot",
+            	"outputs": [
+            		{
+            			"internalType": "uint8",
+            			"name": "flag_",
+            			"type": "uint8"
+            		}
+            	],
+            	"stateMutability": "nonpayable",
+            	"type": "function"
+            },
+            {
+            	"inputs": [
+            		{
+            			"internalType": "address",
+            			"name": "_ballot_address",
+            			"type": "address"
+            		},
+            		{
+            			"internalType": "uint8",
+            			"name": "_new_state",
+            			"type": "uint8"
+            		}
+            	],
+            	"name": "changeBallotState",
+            	"outputs": [
+            		{
+            			"internalType": "uint8",
+            			"name": "flag_",
+            			"type": "uint8"
+            		}
+            	],
+            	"stateMutability": "nonpayable",
+            	"type": "function"
+            },
+            {
+            	"inputs": [
+            		{
+            			"internalType": "address",
+            			"name": "_ballot_address",
+            			"type": "address"
+            		},
+            		{
+            			"internalType": "string",
+            			"name": "_title",
+            			"type": "string"
+            		}
+            	],
+            	"name": "createBallot",
+            	"outputs": [
+            		{
+            			"internalType": "uint8",
+            			"name": "flag_",
+            			"type": "uint8"
+            		}
+            	],
+            	"stateMutability": "nonpayable",
+            	"type": "function"
+            },
+            {
+            	"inputs": [],
+            	"name": "getAllBallots",
+            	"outputs": [
+            		{
+            			"internalType": "address[]",
+            			"name": "",
+            			"type": "address[]"
+            		},
+            		{
+            			"internalType": "string[]",
+            			"name": "",
+            			"type": "string[]"
+            		}
+            	],
+            	"stateMutability": "view",
+            	"type": "function"
+            },
+            {
+            	"inputs": [
+            		{
+            			"internalType": "uint256",
+            			"name": "_ballot_id",
+            			"type": "uint256"
+            		}
+            	],
+            	"name": "getBallot",
+            	"outputs": [
+            		{
+            			"internalType": "address",
+            			"name": "ballot_address_",
+            			"type": "address"
+            		},
+            		{
+            			"internalType": "string",
+            			"name": "title_",
+            			"type": "string"
+            		}
+            	],
+            	"stateMutability": "view",
+            	"type": "function"
+            },
+            {
+            	"inputs": [],
+            	"name": "getController",
+            	"outputs": [
+            		{
+            			"internalType": "address",
+            			"name": "controller_",
+            			"type": "address"
+            		}
+            	],
+            	"stateMutability": "view",
+            	"type": "function"
+            },
+            {
+            	"inputs": [
+            		{
+            			"internalType": "address",
+            			"name": "_voter",
+            			"type": "address"
+            		}
+            	],
+            	"name": "getVoteWeight",
+            	"outputs": [
+            		{
+            			"internalType": "uint256",
+            			"name": "wt_",
+            			"type": "uint256"
+            		}
+            	],
+            	"stateMutability": "view",
+            	"type": "function"
+            },
+            {
+            	"inputs": [
+            		{
+            			"internalType": "uint256",
+            			"name": "",
+            			"type": "uint256"
+            		}
+            	],
+            	"name": "id_to_ballot",
+            	"outputs": [
+            		{
+            			"internalType": "uint256",
+            			"name": "id",
+            			"type": "uint256"
+            		},
+            		{
+            			"internalType": "string",
+            			"name": "title",
+            			"type": "string"
+            		},
+            		{
+            			"internalType": "address",
+            			"name": "contract_address",
+            			"type": "address"
+            		},
+            		{
+            			"internalType": "enum Storage.BallotState",
+            			"name": "ballot_state",
+            			"type": "uint8"
+            		}
+            	],
+            	"stateMutability": "view",
+            	"type": "function"
+            },
+            {
+            	"inputs": [
+            		{
+            			"internalType": "uint256",
+            			"name": "",
+            			"type": "uint256"
+            		}
+            	],
+            	"name": "id_to_voter",
+            	"outputs": [
+            		{
+            			"internalType": "uint256",
+            			"name": "id",
+            			"type": "uint256"
+            		},
+            		{
+            			"internalType": "string",
+            			"name": "name",
+            			"type": "string"
+            		},
+            		{
+            			"internalType": "address",
+            			"name": "account",
+            			"type": "address"
+            		},
+            		{
+            			"internalType": "uint256",
+            			"name": "vote_wt",
+            			"type": "uint256"
+            		}
+            	],
+            	"stateMutability": "view",
+            	"type": "function"
+            },
+            {
+            	"inputs": [
+            		{
+            			"internalType": "address",
+            			"name": "_controller",
+            			"type": "address"
+            		}
+            	],
+            	"name": "initialiseController",
+            	"outputs": [],
+            	"stateMutability": "nonpayable",
+            	"type": "function"
+            },
+            {
+            	"inputs": [
+            		{
+            			"internalType": "address",
+            			"name": "",
+            			"type": "address"
+            		}
+            	],
+            	"name": "is_ballot_contract",
+            	"outputs": [
+            		{
+            			"internalType": "uint8",
+            			"name": "",
+            			"type": "uint8"
+            		}
+            	],
+            	"stateMutability": "view",
+            	"type": "function"
+            },
+            {
+            	"inputs": [
+            		{
+            			"internalType": "address",
+            			"name": "",
+            			"type": "address"
+            		}
+            	],
+            	"name": "is_voter",
+            	"outputs": [
+            		{
+            			"internalType": "uint8",
+            			"name": "",
+            			"type": "uint8"
+            		}
+            	],
+            	"stateMutability": "view",
+            	"type": "function"
+            },
+            {
+            	"inputs": [
+            		{
+            			"internalType": "address",
+            			"name": "_voter",
+            			"type": "address"
+            		},
+            		{
+            			"internalType": "string",
+            			"name": "_name",
+            			"type": "string"
+            		}
+            	],
+            	"name": "registerVoter",
+            	"outputs": [
+            		{
+            			"internalType": "uint8",
+            			"name": "flag_",
+            			"type": "uint8"
+            		}
+            	],
+            	"stateMutability": "nonpayable",
+            	"type": "function"
+            },
+            {
+            	"inputs": [
+            		{
+            			"internalType": "address",
+            			"name": "_new_controller",
+            			"type": "address"
+            		}
+            	],
+            	"name": "setController",
+            	"outputs": [],
+            	"stateMutability": "nonpayable",
+            	"type": "function"
+            },
+            {
+            	"inputs": [],
+            	"name": "voter_count",
+            	"outputs": [
+            		{
+            			"internalType": "uint256",
+            			"name": "",
+            			"type": "uint256"
+            		}
+            	],
+            	"stateMutability": "view",
+            	"type": "function"
+            },
+            {
+            	"inputs": [],
+            	"name": "weightDecimals",
+            	"outputs": [
+            		{
+            			"internalType": "uint256",
+            			"name": "",
+            			"type": "uint256"
+            		}
+            	],
+            	"stateMutability": "view",
+            	"type": "function"
+            }
+            ]
+        },
+    "Controller": {
+        "address":"0x200029c34b911963e1AE28A41fB77Ac392736531",
+        "abi": [
+        {
+            "inputs": [
+                {
+                    "internalType": "address",
+                    "name": "_voting_storage",
+                    "type": "address"
+                }
+            ],
+            "stateMutability": "nonpayable",
+            "type": "constructor"
+        },
+        {
+            "anonymous": false,
+            "inputs": [
+                {
+                    "indexed": true,
+                    "internalType": "address",
+                    "name": "prev_admin",
+                    "type": "address"
+                },
+                {
+                    "indexed": false,
+                    "internalType": "uint256",
+                    "name": "timestamp",
+                    "type": "uint256"
+                }
+            ],
+            "name": "AdminResigned",
+            "type": "event"
+        },
+        {
+            "anonymous": false,
+            "inputs": [
+                {
+                    "indexed": true,
+                    "internalType": "address",
+                    "name": "new_admin",
+                    "type": "address"
+                },
+                {
+                    "indexed": true,
+                    "internalType": "address",
+                    "name": "requester",
+                    "type": "address"
+                },
+                {
+                    "indexed": false,
+                    "internalType": "uint256",
+                    "name": "timestamp",
+                    "type": "uint256"
+                }
+            ],
+            "name": "NewAdminAdded",
+            "type": "event"
+        },
+        {
+            "inputs": [
+                {
+                    "internalType": "address",
+                    "name": "_new_admin",
+                    "type": "address"
+                }
+            ],
+            "name": "addAdmin",
+            "outputs": [],
+            "stateMutability": "nonpayable",
+            "type": "function"
+        },
+        {
+            "inputs": [
+                {
+                    "internalType": "uint256",
+                    "name": "_ballot_id",
+                    "type": "uint256"
+                }
+            ],
+            "name": "cancelBallot",
+            "outputs": [],
+            "stateMutability": "nonpayable",
+            "type": "function"
+        },
+        {
+            "inputs": [
+                {
+                    "internalType": "address",
+                    "name": "_param",
+                    "type": "address"
+                }
+            ],
+            "name": "checkIsAdmin",
+            "outputs": [
+                {
+                    "internalType": "uint8",
+                    "name": "flag",
+                    "type": "uint8"
+                }
+            ],
+            "stateMutability": "view",
+            "type": "function"
+        },
+        {
+            "inputs": [
+                {
+                    "internalType": "string",
+                    "name": "_title",
+                    "type": "string"
+                }
+            ],
+            "name": "createBallot",
+            "outputs": [],
+            "stateMutability": "nonpayable",
+            "type": "function"
+        },
+        {
+            "inputs": [
+                {
+                    "internalType": "uint256",
+                    "name": "_ballot_id",
+                    "type": "uint256"
+                },
+                {
+                    "internalType": "string[]",
+                    "name": "_proposal_names",
+                    "type": "string[]"
+                },
+                {
+                    "internalType": "string[]",
+                    "name": "_proposal_documents",
+                    "type": "string[]"
+                }
+            ],
+            "name": "createMultipleProposals",
+            "outputs": [],
+            "stateMutability": "nonpayable",
+            "type": "function"
+        },
+        {
+            "inputs": [
+                {
+                    "internalType": "uint256",
+                    "name": "_ballot_id",
+                    "type": "uint256"
+                },
+                {
+                    "internalType": "string",
+                    "name": "_proposal_name",
+                    "type": "string"
+                },
+                {
+                    "internalType": "string",
+                    "name": "_proposal_document",
+                    "type": "string"
+                }
+            ],
+            "name": "createProposal",
+            "outputs": [],
+            "stateMutability": "nonpayable",
+            "type": "function"
+        },
+        {
+            "inputs": [
+                {
+                    "internalType": "uint256",
+                    "name": "_ballot_id",
+                    "type": "uint256"
+                }
+            ],
+            "name": "end",
+            "outputs": [],
+            "stateMutability": "nonpayable",
+            "type": "function"
+        },
+        {
+            "inputs": [],
+            "name": "getAllBallots",
+            "outputs": [
+                {
+                    "internalType": "address[]",
+                    "name": "",
+                    "type": "address[]"
+                },
+                {
+                    "internalType": "string[]",
+                    "name": "",
+                    "type": "string[]"
+                }
+            ],
+            "stateMutability": "view",
+            "type": "function"
+        },
+        {
+            "inputs": [
+                {
+                    "internalType": "uint256",
+                    "name": "_id",
+                    "type": "uint256"
+                }
+            ],
+            "name": "getBallot",
+            "outputs": [
+                {
+                    "internalType": "address",
+                    "name": "ballot_address_",
+                    "type": "address"
+                },
+                {
+                    "internalType": "string",
+                    "name": "title_",
+                    "type": "string"
+                }
+            ],
+            "stateMutability": "view",
+            "type": "function"
+        },
+        {
+            "inputs": [],
+            "name": "getStorage",
+            "outputs": [
+                {
+                    "internalType": "address",
+                    "name": "storage_",
+                    "type": "address"
+                }
+            ],
+            "stateMutability": "view",
+            "type": "function"
+        },
+        {
+            "inputs": [
+                {
+                    "internalType": "string",
+                    "name": "_name",
+                    "type": "string"
+                }
+            ],
+            "name": "registerVoter",
+            "outputs": [],
+            "stateMutability": "nonpayable",
+            "type": "function"
+        },
+        {
+            "inputs": [],
+            "name": "resignAsAdmin",
+            "outputs": [],
+            "stateMutability": "nonpayable",
+            "type": "function"
+        },
+        {
+            "inputs": [
+                {
+                    "internalType": "address",
+                    "name": "_voting_storage",
+                    "type": "address"
+                }
+            ],
+            "name": "setStorage",
+            "outputs": [],
+            "stateMutability": "nonpayable",
+            "type": "function"
+        },
+        {
+            "inputs": [
+                {
+                    "internalType": "address",
+                    "name": "_new_controller",
+                    "type": "address"
+                }
+            ],
+            "name": "setStorageController",
+            "outputs": [],
+            "stateMutability": "nonpayable",
+            "type": "function"
+        },
+        {
+            "inputs": [
+                {
+                    "internalType": "uint256",
+                    "name": "_ballot_id",
+                    "type": "uint256"
+                }
+            ],
+            "name": "start",
+            "outputs": [],
+            "stateMutability": "nonpayable",
+            "type": "function"
+        }
+        ]
+    },
+    "Ballot": {
+        "abi": [
+            {
+                "inputs": [
+                    {
+                        "internalType": "address",
+                        "name": "_voting_storage",
+                        "type": "address"
+                    },
+                    {
+                        "internalType": "string",
+                        "name": "_title",
+                        "type": "string"
+                    },
+                    {
+                        "internalType": "uint256",
+                        "name": "_creation_timestamp",
+                        "type": "uint256"
+                    },
+                    {
+                        "internalType": "uint8",
+                        "name": "_state",
+                        "type": "uint8"
+                    }
+                ],
+                "stateMutability": "nonpayable",
+                "type": "constructor"
+            },
+            {
+                "anonymous": false,
+                "inputs": [
+                    {
+                        "indexed": false,
+                        "internalType": "address",
+                        "name": "proposal_address",
+                        "type": "address"
+                    },
+                    {
+                        "indexed": false,
+                        "internalType": "address",
+                        "name": "storage_address",
+                        "type": "address"
+                    },
+                    {
+                        "indexed": false,
+                        "internalType": "address",
+                        "name": "controller_address",
+                        "type": "address"
+                    },
+                    {
+                        "indexed": false,
+                        "internalType": "uint256",
+                        "name": "timestamp",
+                        "type": "uint256"
+                    }
+                ],
+                "name": "BallotContractDeployed",
+                "type": "event"
+            },
+            {
+                "anonymous": false,
+                "inputs": [
+                    {
+                        "indexed": true,
+                        "internalType": "address",
+                        "name": "voter",
+                        "type": "address"
+                    },
+                    {
+                        "indexed": true,
+                        "internalType": "uint256",
+                        "name": "proposal_id",
+                        "type": "uint256"
+                    },
+                    {
+                        "indexed": false,
+                        "internalType": "uint256",
+                        "name": "vote_count",
+                        "type": "uint256"
+                    }
+                ],
+                "name": "NewVoteCasted",
+                "type": "event"
+            },
+            {
+                "anonymous": false,
+                "inputs": [
+                    {
+                        "indexed": false,
+                        "internalType": "address",
+                        "name": "account",
+                        "type": "address"
+                    },
+                    {
+                        "indexed": false,
+                        "internalType": "uint256",
+                        "name": "timestamp",
+                        "type": "uint256"
+                    }
+                ],
+                "name": "Started",
+                "type": "event"
+            },
+            {
+                "anonymous": false,
+                "inputs": [
+                    {
+                        "indexed": false,
+                        "internalType": "address",
+                        "name": "account",
+                        "type": "address"
+                    },
+                    {
+                        "indexed": false,
+                        "internalType": "uint256",
+                        "name": "timestamp",
+                        "type": "uint256"
+                    }
+                ],
+                "name": "Stopped",
+                "type": "event"
+            },
+            {
+                "anonymous": false,
+                "inputs": [
+                    {
+                        "indexed": false,
+                        "internalType": "address",
+                        "name": "sender",
+                        "type": "address"
+                    },
+                    {
+                        "indexed": false,
+                        "internalType": "uint256",
+                        "name": "timestamp",
+                        "type": "uint256"
+                    }
+                ],
+                "name": "VotingEnded",
+                "type": "event"
+            },
+            {
+                "anonymous": false,
+                "inputs": [
+                    {
+                        "indexed": false,
+                        "internalType": "address",
+                        "name": "sender",
+                        "type": "address"
+                    },
+                    {
+                        "indexed": false,
+                        "internalType": "uint256",
+                        "name": "timestamp",
+                        "type": "uint256"
+                    }
+                ],
+                "name": "VotingStarted",
+                "type": "event"
+            },
+            {
+                "inputs": [
+                    {
+                        "internalType": "uint256",
+                        "name": "_id",
+                        "type": "uint256"
+                    }
+                ],
+                "name": "castVote",
+                "outputs": [],
+                "stateMutability": "nonpayable",
+                "type": "function"
+            },
+            {
+                "inputs": [
+                    {
+                        "internalType": "string[]",
+                        "name": "_proposal_names",
+                        "type": "string[]"
+                    },
+                    {
+                        "internalType": "string[]",
+                        "name": "_proposal_documents",
+                        "type": "string[]"
+                    }
+                ],
+                "name": "createMultipleProposals",
+                "outputs": [],
+                "stateMutability": "nonpayable",
+                "type": "function"
+            },
+            {
+                "inputs": [
+                    {
+                        "internalType": "string",
+                        "name": "_name",
+                        "type": "string"
+                    },
+                    {
+                        "internalType": "string",
+                        "name": "_document_hash",
+                        "type": "string"
+                    }
+                ],
+                "name": "createProposal",
+                "outputs": [],
+                "stateMutability": "nonpayable",
+                "type": "function"
+            },
+            {
+                "inputs": [],
+                "name": "creation_timestamp",
+                "outputs": [
+                    {
+                        "internalType": "uint256",
+                        "name": "",
+                        "type": "uint256"
+                    }
+                ],
+                "stateMutability": "view",
+                "type": "function"
+            },
+            {
+                "inputs": [],
+                "name": "destroyBallot",
+                "outputs": [],
+                "stateMutability": "nonpayable",
+                "type": "function"
+            },
+            {
+                "inputs": [],
+                "name": "end",
+                "outputs": [],
+                "stateMutability": "nonpayable",
+                "type": "function"
+            },
+            {
+                "inputs": [],
+                "name": "getAllProposals",
+                "outputs": [
+                    {
+                        "components": [
+                            {
+                                "internalType": "string",
+                                "name": "name",
+                                "type": "string"
+                            },
+                            {
+                                "internalType": "string",
+                                "name": "document_hash",
+                                "type": "string"
+                            },
+                            {
+                                "internalType": "uint256",
+                                "name": "votes",
+                                "type": "uint256"
+                            }
+                        ],
+                        "internalType": "struct Ballot.Proposal[]",
+                        "name": "proposals_",
+                        "type": "tuple[]"
+                    }
+                ],
+                "stateMutability": "view",
+                "type": "function"
+            },
+            {
+                "inputs": [],
+                "name": "getControllerAddress",
+                "outputs": [
+                    {
+                        "internalType": "address",
+                        "name": "controller_",
+                        "type": "address"
+                    }
+                ],
+                "stateMutability": "view",
+                "type": "function"
+            },
+            {
+                "inputs": [],
+                "name": "getStorageAddress",
+                "outputs": [
+                    {
+                        "internalType": "address",
+                        "name": "storage_",
+                        "type": "address"
+                    }
+                ],
+                "stateMutability": "view",
+                "type": "function"
+            },
+            {
+                "inputs": [
+                    {
+                        "internalType": "address",
+                        "name": "",
+                        "type": "address"
+                    }
+                ],
+                "name": "have_voted",
+                "outputs": [
+                    {
+                        "internalType": "uint8",
+                        "name": "",
+                        "type": "uint8"
+                    }
+                ],
+                "stateMutability": "view",
+                "type": "function"
+            },
+            {
+                "inputs": [
+                    {
+                        "internalType": "uint256",
+                        "name": "",
+                        "type": "uint256"
+                    }
+                ],
+                "name": "proposals",
+                "outputs": [
+                    {
+                        "internalType": "string",
+                        "name": "name",
+                        "type": "string"
+                    },
+                    {
+                        "internalType": "string",
+                        "name": "document_hash",
+                        "type": "string"
+                    },
+                    {
+                        "internalType": "uint256",
+                        "name": "votes",
+                        "type": "uint256"
+                    }
+                ],
+                "stateMutability": "view",
+                "type": "function"
+            },
+            {
+                "inputs": [],
+                "name": "start",
+                "outputs": [],
+                "stateMutability": "nonpayable",
+                "type": "function"
+            },
+            {
+                "inputs": [],
+                "name": "state",
+                "outputs": [
+                    {
+                        "internalType": "enum Ballot.BallotState",
+                        "name": "",
+                        "type": "uint8"
+                    }
+                ],
+                "stateMutability": "view",
+                "type": "function"
+            },
+            {
+                "inputs": [],
+                "name": "stopped",
+                "outputs": [
+                    {
+                        "internalType": "uint8",
+                        "name": "is_stopped",
+                        "type": "uint8"
+                    }
+                ],
+                "stateMutability": "view",
+                "type": "function"
+            },
+            {
+                "inputs": [],
+                "name": "title",
+                "outputs": [
+                    {
+                        "internalType": "string",
+                        "name": "",
+                        "type": "string"
+                    }
+                ],
+                "stateMutability": "view",
+                "type": "function"
+            },
+            {
+                "inputs": [],
+                "name": "winner",
+                "outputs": [
+                    {
+                        "internalType": "string",
+                        "name": "winnerName_",
+                        "type": "string"
+                    }
+                ],
+                "stateMutability": "view",
+                "type": "function"
+            },
+            {
+                "inputs": [],
+                "name": "winnerIndex",
+                "outputs": [
+                    {
+                        "internalType": "uint256",
+                        "name": "winningProposal_",
+                        "type": "uint256"
+                    }
+                ],
+                "stateMutability": "view",
+                "type": "function"
+            }
+        ]
+    }
+}
