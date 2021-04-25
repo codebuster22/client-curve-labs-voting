@@ -1,0 +1,25 @@
+{
+  "files": {
+    "main.css": "/client-curve-labs-voting/static/css/main.e855acea.chunk.css",
+    "main.js": "/client-curve-labs-voting/static/js/main.410d3f94.chunk.js",
+    "main.js.map": "/client-curve-labs-voting/static/js/main.410d3f94.chunk.js.map",
+    "runtime-main.js": "/client-curve-labs-voting/static/js/runtime-main.c84319b6.js",
+    "runtime-main.js.map": "/client-curve-labs-voting/static/js/runtime-main.c84319b6.js.map",
+    "static/css/2.4c97ca4f.chunk.css": "/client-curve-labs-voting/static/css/2.4c97ca4f.chunk.css",
+    "static/js/2.d254901d.chunk.js": "/client-curve-labs-voting/static/js/2.d254901d.chunk.js",
+    "static/js/2.d254901d.chunk.js.map": "/client-curve-labs-voting/static/js/2.d254901d.chunk.js.map",
+    "static/js/3.d9787d86.chunk.js": "/client-curve-labs-voting/static/js/3.d9787d86.chunk.js",
+    "static/js/3.d9787d86.chunk.js.map": "/client-curve-labs-voting/static/js/3.d9787d86.chunk.js.map",
+    "index.html": "/client-curve-labs-voting/index.html",
+    "static/css/2.4c97ca4f.chunk.css.map": "/client-curve-labs-voting/static/css/2.4c97ca4f.chunk.css.map",
+    "static/css/main.e855acea.chunk.css.map": "/client-curve-labs-voting/static/css/main.e855acea.chunk.css.map",
+    "static/js/2.d254901d.chunk.js.LICENSE.txt": "/client-curve-labs-voting/static/js/2.d254901d.chunk.js.LICENSE.txt"
+  },
+  "entrypoints": [
+    "static/js/runtime-main.c84319b6.js",
+    "static/css/2.4c97ca4f.chunk.css",
+    "static/js/2.d254901d.chunk.js",
+    "static/css/main.e855acea.chunk.css",
+    "static/js/main.410d3f94.chunk.js"
+  ]
+}
