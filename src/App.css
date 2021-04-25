@@ -2,6 +2,14 @@
   text-align: center;
 }
 
+.tl{
+  text-align: left;
+}
+
+.overflow-wrap{
+  overflow-wrap: anywhere;
+}
+
 .App-logo {
   height: 20vmin;
   width: 20vmin !important;

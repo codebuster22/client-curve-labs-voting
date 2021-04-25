@@ -13,7 +13,7 @@ const CreateBallot = ({handleCreateBallot}) => {
     return (
       <div className={'create-ballot w-100 d-flex justify-content-center'} >
         <div>
-          <div className={'form-group'} style={{width: '24rem'}} >
+          <div className={'form-group'} style={{maxWidth: '24rem'}} >
             <label htmlFor={'title'} >Ballot Title</label>
             <input value={title} className={'form-control'} onChange={handleTitleChange} id={'title'} name={'title'} placeholder={'Ballot Title'} />
           </div>

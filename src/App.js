@@ -444,28 +444,56 @@ class App extends Component {
           } = this;
 
     return (
-      <div className="App">
+      <div className="App conatiner">
         {
           isLoaded?
           <>
             <RegisterVoterModal show={show} onHide={onHide} registerVoter={registerVoter} />
             <Dashboard />
 
-            <p>
-              Balancer Pool Address = <a rel={'noreferrer noopener'} 
-                                         target={'_blank'} 
-                                         href={`https://rinkeby.pools.balancer.exchange/#/pool/${BALANCER_POOL_ADDRESS}`}>
-                                           {BALANCER_POOL_ADDRESS}
-                                      </a>
-              <br/>
-              Safe Manager Address = <a rel={'noreferrer noopener'} 
-                                        target={'_blank'} 
-                                        href={`https://rinkeby.gnosis-safe.io/app/#/safes/${SAFE_MANAGER_ADDRESS}`} >
-                                          {SAFE_MANAGER_ADDRESS}
-                                      </a>
-            </p>
+            <ul className={'tl'}>
+              Steps to Participate in voting:-
+              <li>
+                Stake some DAI/USDC in Balancer Pool <a rel={'noreferrer noopener'} 
+                                                         target={'_blank'} 
+                                                         className={'text-wrap'}
+                                                         href={`https://rinkeby.pools.balancer.exchange/#/pool/${BALANCER_POOL_ADDRESS}`}>
+                                                           Balancer Pool
+                                                      </a>
+              </li>
+              <li>
+                If you don't have DAI/USDC, you can get it from <a rel={'noreferrer noopener'} 
+                                                                  target={'_blank'} 
+                                                                  href={`https://app.uniswap.org/#/swap`} >
+                                                                    Uniswap
+                                                                </a>
+              </li>
+              <li>
+                Once staking is done, Register here as Voter.
+              </li>
+              <li>
+                GNOSIS Safe Manager = <a rel={'noreferrer noopener'} 
+                                          target={'_blank'} 
+                                          className={'text-wrap'}
+                                          href={`https://rinkeby.gnosis-safe.io/app/#/safes/${SAFE_MANAGER_ADDRESS}`} >
+                                            Safe Manager
+                                        </a>
+              </li>
+              <li className={'footer'}>
+                Your Vote weight is the share of your staking in balancer pool.
+              </li>
+              <li className={'footer'}>
+                Please referesh the page after you register
+              </li>
+              <li className={'footer'}>
+                DAI Token - 0x5592EC0cfb4dbc12D3aB100b257153436a1f0FEa
+                <br />
+                USDC Token - 0x4DBCdF9B62e891a7cec5A2568C3F4FAF9E8Abe2b
+                <br />
+              </li>
+            </ul>
             <div className={'row m-0'}>
-                <div className={'col-12 col-md-8 pb-5'}>
+                <div className={'col-12 col-md-8 top-border-black pt-5 pb-5'}>
                   {
                     !isBallotSelected?
                       <>
