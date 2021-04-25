@@ -11,9 +11,27 @@
 }
 
 @media (prefers-reduced-motion: no-preference) {
-  .App-logo {
+  .logo-spin {
     animation: App-logo-spin infinite 1s linear;
   }
+}
+
+.top-border-black{
+  border-top: 1px solid #282c34;
+}
+
+.footer{
+  font-size: 12px;
+}
+
+.heart{
+  color: red;
+  transition: all 0.25s ease-in;
+}
+
+.heart:hover{
+  color: #98002e;
+  transition: all 0.25s ease-in;
 }
 
 .App-header {

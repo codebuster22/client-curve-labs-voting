@@ -1,26 +1,52 @@
-import {Component} from 'react';
+import {Component}        from 'react';
 
-import Dashboard from './Containers/Dashboard';
-import Loading   from './Containers/Loading';
+import Dashboard          from './Containers/Dashboard';
+import Loading            from './Containers/Loading';
+import ErrorPage          from './Containers/ErrorPage';
+import SafeOwnership      from './Containers/SafeOwnership';
+import Ballot             from './Containers/Ballot';
+
+import BallotView         from './Components/BallotView';
+import CreateBallot       from './Components/CreateBallot';
+import RegisterVoterModal from './Components/RegisterVoterModal';
+import Footer             from './Components/Footer';
+
+import getWeb3            from './getWeb3';
+import {
+          StorageContract,
+          ControllerContract, 
+          SafeControllerContract, 
+          BallotContract
+        }                 from './Contracts.json';
+import DeployedContracts  from './DeployedContracts.json';
+import eventError         from './EventError';
 
 import './App.css';
 
-import getWeb3 from './getWeb3';
-import {Storage, Controller, Ballot} from './Contracts.json';
+
+// Constants
+const INVALID_NETWORK_ID    = 'INVALID_NETWORK_ID';
+const ZERO_ADDRESS          = '0x0000000000000000000000000000000000000000';
+const BALANCER_POOL_ADDRESS = process.env.REACT_APP_BALANCER_POOL_ADDRESS;
+const SAFE_MANAGER_ADDRESS  = process.env.REACT_APP_SAFE_MANAGER_ADDRESS;
 
 class App extends Component {
 
   state = {
-    isLoaded: false,
-    ballotTitle: '',
-    currentProposalTitle: '',
-    currentProposalDocument: '',
-    proposals: [],
-    ballotId: 0,
-    ballotAddress: '0x02eE41e4377ab7A0670bd83D2F02E5ba73c4E20E',
-    currentAccount: '',
-    voterName: '',
-    proposalId: 0
+    currentAccount  : '',
+    errorMessage    : '',
+    currectBallot   : {},
+    currentVoter    : {},
+    allBallots      : [],
+    safeProposals   : [],
+    isLoaded        : false,
+    errorEncountered: false,
+    isBallotSelected: false,
+  }
+
+  getNetworkId = async () => {
+    const networkId = await this.web3.eth.net.getId();
+    return networkId === 5777 ? 1337 : networkId;
   }
 
   componentDidMount = async () => {
@@ -37,29 +63,45 @@ class App extends Component {
               {
                 this.getVoterDetails(accounts[0]);
                 this.setState({
+                  currentVoter: {},
                   currentAccount: accounts[0]
                 })
               }
       );
 
+      window.ethereum.on(
+        'chainChanged',
+        ()=>window.location.reload()
+      )
 
       const accounts = await this.web3.eth.getAccounts();
 
-      this.networkId = await this.web3.eth.net.getId();
+      const deployedContracts = DeployedContracts[await this.getNetworkId()];
+      
+      if(!deployedContracts) throw Error(INVALID_NETWORK_ID);
 
       // Creating instance for Storage Contract
-      this.StorageInstance = new this.web3.eth.Contract(Storage.abi, Storage.address);
-      window.StorageInstance = this.StorageInstance;
+      this.Storage = new this.web3.eth.Contract(StorageContract.abi, deployedContracts.storage);
 
-      // Creating instance for Controller Instance
-      this.ControllerInstance = new this.web3.eth.Contract(Controller.abi, Controller.address);
+      // Creating instance for Controller Contract
+      this.Controller = new this.web3.eth.Contract(ControllerContract.abi, deployedContracts.controller);
+
+      //Creating instance for SafeController Contract
+      this.SafeController = new this.web3.eth.Contract(SafeControllerContract.abi, deployedContracts.safeController);
 
       // Creating Ballot blueprint
-      this.BallotInstance = new this.web3.eth.Contract(Ballot.abi);
+      this.BallotFactory = new this.web3.eth.Contract(BallotContract.abi);
 
-      console.log({Storage: this.StorageInstance, Controller: this.ControllerInstance});
+      console.log({Storage: this.Storage, Controller: this.Controller, SafeController: this.SafeController});
 
       this.getVoterDetails(accounts[0]);
+      this.getSafeProposals();
+      this.getAllBallots();
+
+      // Event Listeners
+      this.listenToSafeProposal();
+      this.listenToSafeProposalEnd();
+      this.listenToBallotCreation();
 
       // Timeout because, I wanted to show the loading page animation :)
       // Setting state and setting isLoaded true to display the page.
@@ -73,10 +115,23 @@ class App extends Component {
       )
 
     } catch (error) {
+      if(error.message === INVALID_NETWORK_ID) {
+        this.setState({
+          errorEncountered: true,
+          errorMessage: "Please switch to network ID that we support. Thank You."
+        })
+        return;
+      }
       console.error(error);
-      alert("Ooops! Gateway denied entry, try again after solving the error.")
+      this.setState({
+        errorEncountered: true,
+        errorMessage: "Ooops! Gateway denied entry, try again after solving the error."
+      })
     }
   }
+
+  onHide = () => this.setState({ show : false });
+  onShow = () => this.setState({ show : true });
 
   generateOptions = (currentAccount) => ({
     from: currentAccount,
@@ -84,11 +139,123 @@ class App extends Component {
     gasPrice: this.gasPrice
   })
 
+  // Events Subscribtions
+  listenToBallotCreation = () => {
+    this.Storage.events.NewBallotCreated()
+    .on('data',(event)=>{
+      const {ballot_address, ballot_id, ballot_for} = event.returnValues;
+      const ballot = {
+        id: ballot_id, 
+        ballot_state: 0, 
+        title: ballot_for,
+        contract_address: ballot_address
+      };
+      console.log(event, ballot);
+      const {allBallots} = this.state;
+      allBallots.push(ballot);
+      this.setState({
+        allBallots
+      });
+      alert("New Ballot Created");
+    })
+    .on('error',eventError)
+  }
+
+  listenToBallotStateChanged = () => {
+    this.Storage.events.BallotStateChanged()
+    .on('data',(event)=>{
+      const{ballot_id, status} = event.returnValues;
+      const oldBallots = this.state.allBallots;
+      const newBallots = oldBallots.map(
+        (ballot) => {
+          if(ballot.id === ballot_id){
+            ballot.ballot_state = status;
+          }
+          return ballot;
+        }
+      )
+      console.log({ballot_id, event, newBallots, oldBallots})
+      this.setState({
+        allBallots: newBallots
+      })
+    })
+    .on('error',eventError)
+  }
+
+  listenToSafeProposal = () => {
+    this.SafeController.events.NewOwnershipProposalCreated()
+    .on('data', (event)=>{
+      const {action, proposal_id, new_threshold, proposed_owner} = event.returnValues;
+      const proposal = {
+        proposedOwner: proposed_owner,
+        proposalId: proposal_id,
+        newThreshold: new_threshold,
+        yesWt: 0,
+        noWt: 0,
+        action
+      };
+      console.log(event, proposal);
+      const {safeProposals} = this.state;
+      safeProposals.push(proposal);
+      this.setState({
+        safeProposals
+      })
+    })
+    .on('error',eventError)
+  }
+
+  listenToSafeProposalEnd = () => {
+    this.SafeController.events.OwnershipProposalEnded()
+    .on('data', (event)=> {
+      const {proposal_id, success} = event.returnValues;
+      alert(`Proposal ${proposal_id} was ${success?'Accepted':'Rejected'}!`);
+      const {safeProposals} = this.state;
+      const newProposals = safeProposals.filter(
+        ({proposalId})=> proposalId !== proposal_id
+      );
+      this.setState({
+        safeProposals: newProposals
+      });
+    })
+    .on('error', eventError)
+  }
+
+  // Voter Interaction
+  registerVoter = async (name) => {
+    const {currentAccount} = this.state;
+    try{
+      await this.Controller.methods.storageRegisterVoter(name).send(this.generateOptions(currentAccount));
+      return true;
+    } catch (error) {
+      console.error(error);
+      alert("Error while registering. Check if the Balance Pool Address is correct or not.");
+      return false;
+    }
+  }
+
+  getVoterDetails = async (voter_account) => {
+    const flag = await this.Storage.methods.is_voter(voter_account).call();
+    if(flag !== '1'){
+      this.setState({
+        show: true
+      })
+      return;
+    }
+    const voterId = await this.Storage.methods.address_to_voter_id(voter_account).call();
+    const {account, id, name, vote_wt} = await this.Storage.methods.id_to_voter(voterId).call();
+    this.setState({
+      currentVoter: {account, id, name, vote_wt},
+      show: false
+    })
+  }
+
+
+  // Ballot Interaction
+
   createBallot = async (title) => {
     const {currentAccount} = this.state;
-
     try{
-      const response = await this.ControllerInstance.methods.createBallot(title).send(this.generateOptions(currentAccount));
+      const response = await this.Controller.methods.ballotCreateBallot(title).send(this.generateOptions(currentAccount));
       console.log(response);
     } catch (error) {
       console.error(error);
@@ -96,10 +263,10 @@ class App extends Component {
     }
   }
 
-  createProposals = async ( ballotId ,proposalTitles, proposalDocuments) => {
+  createProposals = async ( ballotAddress, proposalTitles, proposalDocuments) => {
     const {currentAccount} = this.state;
     try{
-      const response = await this.ControllerInstance.methods.createMultipleProposals(ballotId, proposalTitles, proposalDocuments).send(this.generateOptions(currentAccount));
+      const response = await this.Controller.methods.ballotCreateProposals(ballotAddress, proposalTitles, proposalDocuments).send(this.generateOptions(currentAccount));
       console.log(response);
       return true;
     } catch (error) {
@@ -109,230 +276,230 @@ class App extends Component {
     }
   }
 
-  cancelBallot = async () => {
-    const {currentAccount, ballotId} = this.state;
+  cancelBallot = async (ballotId) => {
+    const {currentAccount} = this.state;
     try{
-      const response = await this.ControllerInstance.methods.cancelBallot(ballotId).send(this.generateOptions(currentAccount))
+      const response = await this.Controller.methods.ballotCancelBallot(ballotId).send(this.generateOptions(currentAccount))
+      console.log(response);
+      return true;
+    } catch (error) {
+      console.error(error);
+      return false;
+    }
+  }
+
+  startVoting = async (ballotId) => {
+    const {currentAccount} = this.state;
+    try{
+      const response = await this.Controller.methods.ballotStart(ballotId).send(this.generateOptions(currentAccount));
       console.log(response);
     } catch (error) {
       console.error(error);
-      alert("")
+      alert("");
+    }
+  }
+
+  endVoting = async (ballotId) => {
+    const {currentAccount} = this.state;
+    try{
+      const response = await this.Controller.methods.ballotEnd(ballotId).send(this.generateOptions(currentAccount));
+      console.log(response);
+    } catch (error) {
+      console.error(error);
+      alert("");
+    }
+  }
+
+  castVote = (ballotAddress) => async (proposalId) => {
+    const {currentAccount} = this.state;
+    try{
+      const response = await this.Controller.methods.ballotCastVote(ballotAddress,proposalId).send(this.generateOptions(currentAccount));
+      console.log(response);
+    } catch (error) {
+      console.error(error);
     }
   }
 
   getAllBallots = async () => {
-    const response = await this.ControllerInstance.methods.getAllBallots().call();
+    const response = await this.Storage.methods.getAllBallots().call();
+    const ballots = response.map(
+      ({ballot_state, contract_address, id, title}) => ({ballot_state, contract_address, id, title})
+    )
+    this.setState({
+      allBallots: ballots
+    })
+    console.log(ballots);
+  }
+
+  getAllProposals = async (ballotAddress) => {
+    const ballot = this.BallotFactory;
+    ballot.options.address = ballotAddress;
+    const response = await ballot.methods.getAllProposals().call();
     console.log(response);
+    return response
   }
 
-  getAllProposals = async () => {
-    const {ballotAddress} = this.state;
-    this.BallotInstance.options.address = ballotAddress;
-    const response = await this.BallotInstance.methods.getAllProposals().call();
+  checkWinner = async (ballotAddress) => {
+    const ballot = this.BallotFactory;
+    ballot.options.address = ballotAddress;
+    const response = await ballot.methods.getWinner().call();
     console.log(response);
+    return response;
   }
 
-  startVoting = async () => {
-    const {currentAccount, ballotId} = this.state;
-    try{
-      const response = await this.ControllerInstance.methods.start(ballotId).send(this.generateOptions(currentAccount));
-      console.log(response);
-    } catch (error) {
-      console.error(error);
-      alert("");
-    }
-  }
+  // GNOSIS Safe Interaction
 
-  endVoting = async () => {
-    const {currentAccount, ballotId} = this.state;
-    try{
-      const response = await this.ControllerInstance.methods.end(ballotId).send(this.generateOptions(currentAccount));
-      console.log(response);
-    } catch (error) {
-      console.error(error);
-      alert("");
-    }
-  }
-
-  castVote = async (proposalId) => {
-    const {currentAccount, ballotAddress} = this.state;
-    this.BallotInstance.options.address = ballotAddress;
-    try{
-      const response = await this.BallotInstance.methods.castVote(proposalId).send(this.generateOptions(currentAccount));
-      console.log(response);
-    } catch (error) {
-      console.error(error);
-    }
-  }
-
-  checkWinner = async () => {
-    const {ballotAddress} = this.state;
-    this.BallotInstance.options.address = ballotAddress;
-    const winnerProposalId = await this.BallotInstance.methods.winnerIndex().call()
-    console.log({winnerProposalId});
-    const winner = await this.BallotInstance.methods.proposals(winnerProposalId).call();
-    console.log({winner});
-  }
-
-  registerVoter = async (account, name) => {
+  createSafeProposal = async (proposalAction, proposedOwner, newThreshold) => {
     const {currentAccount} = this.state;
-    try{
-      const response = await this.StorageInstance.methods.registerVoter(account, name).send(this.generateOptions(currentAccount));
-      console.log(response);
-    } catch (error) {
-      console.error(error);
-      alert("Error while registering. Check if the Balance Pool Address is correct or not.");
-    }
+    const createTx = await this.Controller.methods.safeCreateOwnershipProposal(proposalAction, proposedOwner, newThreshold);
+    return await createTx.send(this.generateOptions(currentAccount))
+                  .on('receipt',(receipt)=>{
+                      console.log(receipt);
+                      return true;
+                    })
+                  .on('error',(error)=>{
+                      console.log(error);
+                      return false;
+                    });           
   }
 
-  getVoterDetails = async (account) => {
-    console.log(typeof account);
-    const flag = await this.StorageInstance.methods.is_voter(account).call();
-    console.log(flag);
-    if(flag !== 1){
-      alert("First, register as voter.");
+  safeVote = async (safeProposalId, action) => {
+    const {currentAccount} = this.state;
+    if(action === 1) {
+      await this.Controller.methods.safeYes(safeProposalId).send(this.generateOptions(currentAccount));
       return;
     }
-    const voterId = await this.StorageInstance.methods.address_to_voter_id(account).call();
-    const voter = await this.StorageInstance.methods.id_to_voter(voterId).call();
-    console.log({flag, voterId, voter});
+    await this.Controller.methods.safeNo(safeProposalId).send(this.generateOptions(currentAccount));
   }
 
-  handleChange = (event) => {
-    const target = event.target;
-    const value = target.type == 'checkbox'? 'checked': target.value;
-    const name = target.name;
+  getSafeProposals = async () => {
+    const proposals = await this.SafeController.methods.getAllActiveProposals().call();
+    const safeProposals = proposals.map(
+      ({proposedOwner, proposalId, newThreshold, yesWt, noWt, action,}) => ({proposedOwner, proposalId, newThreshold, yesWt, noWt, action})
+    ).filter(
+      ({proposedOwner}) => proposedOwner !== ZERO_ADDRESS
+    );
     this.setState({
-      [name]: value
+      safeProposals: safeProposals
     })
   }
 
-  handleCreateBallot = async () => {
-    const {ballotTitle} = this.state;
-    await this.createBallot(ballotTitle);
+  handleCreateBallot = async (title) => {
+    await this.createBallot(title);
   }
 
-  handleAddProposal = () => {
-    const {currentProposalTitle, currentProposalDocument, proposals} = this.state;
-    proposals.push(
-      {
-        title: currentProposalTitle,
-        document: currentProposalDocument
-      }
+  handleSelectBallot = (selectedId) => {
+    const {allBallots} = this.state;
+    const ballot = allBallots.find(
+      ({id})=> id===selectedId
     );
     this.setState({
-      currentProposalDocument: '',
-      currentProposalTitle: '',
-      proposals: proposals
-    });
+      currentBallot: ballot,
+      isBallotSelected: true
+    })
+    console.log(ballot);
   }
 
-  handleCreateProposals = () => {
-    const {proposals, ballotId} = this.state;
-    const proposalTitles = [];
-    const proposalDocuments = [];
-    proposals.forEach(
-      ({title, document})=>{
-        proposalTitles.push(title);
-        proposalDocuments.push(document);
-      }
-    )
-    console.log(`Proposals to be created`,proposalTitles, proposalDocuments);
-    this.createProposals(ballotId, proposalTitles, proposalDocuments).then(
-      (flag)=>flag?this.setState({proposals: [], ballotId: null}):null
-    );
+  handleClearCurrentBallot = () => {
+    this.setState({
+      currentBallot: {},
+      isBallotSelected: false
+    })
   }
 
-  renderAllProposals = (proposals) => {
-    return proposals.map(
-      ({title, document})=><><p>Title:- {title}</p><p>Document:- {document}</p></>
+  renderBallots = (ballots) => {
+    ballots.map(
+      ballot => <Ballot />
     )
   }
   
   render() {
 
         const {
+            show,
             isLoaded,
-            currentAccount, 
-            ballotTitle, 
-            currentProposalTitle, 
-            currentProposalDocument, 
-            proposals, 
-            ballotId, 
-            ballotAddress, 
-            voterName,
-            proposalId
+            allBallots,
+            errorMessage,
+            safeProposals,
+            currentBallot,
+            errorEncountered,
+            isBallotSelected
           } = this.state;
         const {
-            registerVoter,
-            handleChange,
-            handleCreateBallot,
-            handleAddProposal,
-            renderAllProposals, 
-            handleCreateProposals, 
-            getAllBallots, 
-            getAllProposals, 
-            cancelBallot,
-            startVoting,
+            onHide,
+            safeVote,
+            castVote,
             endVoting,
+            startVoting,
             checkWinner,
-            castVote
+            cancelBallot,
+            registerVoter,
+            createProposals, 
+            getAllProposals,
+            createSafeProposal,
+
+            handleCreateBallot,
+            handleSelectBallot,
+            handleClearCurrentBallot
           } = this;
 
     return (
       <div className="App">
         {
           isLoaded?
-            <>
+          <>
+            <RegisterVoterModal show={show} onHide={onHide} registerVoter={registerVoter} />
             <Dashboard />
 
             <p>
-              Balancer Pool Address = <a rel={'noreferrer'} target={'_blank'} href={'https://rinkeby.pools.balancer.exchange/#/pool/0x1A7F38418aF5AaBF0fcAe420Ea0b9BbF7bBfd34b'}>0x1A7F38418aF5AaBF0fcAe420Ea0b9BbF7bBfd34b</a>
+              Balancer Pool Address = <a rel={'noreferrer noopener'} 
+                                         target={'_blank'} 
+                                         href={`https://rinkeby.pools.balancer.exchange/#/pool/${BALANCER_POOL_ADDRESS}`}>
+                                           {BALANCER_POOL_ADDRESS}
+                                      </a>
+              <br/>
+              Safe Manager Address = <a rel={'noreferrer noopener'} 
+                                        target={'_blank'} 
+                                        href={`https://rinkeby.gnosis-safe.io/app/#/safes/${SAFE_MANAGER_ADDRESS}`} >
+                                          {SAFE_MANAGER_ADDRESS}
+                                      </a>
             </p>
+            <div className={'row m-0'}>
+                <div className={'col-12 col-md-8 pb-5'}>
+                  {
+                    !isBallotSelected?
+                      <>
+                        <CreateBallot handleCreateBallot={handleCreateBallot} />
+                        <BallotView ballots={allBallots} handleSelectBallot={handleSelectBallot} />
+                      </>
+                      :
+                      <Ballot 
+                        currentBallot={currentBallot} 
+                        getAllProposals={getAllProposals} 
+                        handleClearCurrentBallot={handleClearCurrentBallot} 
+                        createProposals={createProposals} 
+                        cancelBallot={cancelBallot} 
+                        startVoting={startVoting}
+                        endVoting={endVoting}
+                        checkWinner={checkWinner}
+                        castVote={castVote}
+                        Ballot={this.BallotFactory}
+                        />
+                  }
+              </div>
 
-            <input type={'text'} value={voterName} onChange={handleChange} name={'voterName'} placeholder={'Voter Name'} />
-            <button onClick={()=>registerVoter(currentAccount, voterName)}>register</button>
-            <br />
-            <input value={ballotTitle} onChange={handleChange} name={'ballotTitle'} placeholder={'Ballot Title'} />
-            <button onClick={handleCreateBallot} >Create Ballot</button>
-            <br />
+              <div className={'col-12 col-md-4 d-flex flex-wrap justify-content-center pt-5 top-border-black'}>
+                <SafeOwnership createSafeProposal={createSafeProposal} safeProposals={safeProposals} safeVote={safeVote} />
+              </div>
 
-            <input type={'number'} value={ballotId} onChange={handleChange} name={'ballotId'} placeholder={'Ballot ID'} />
-            <input type={'text'} value={currentProposalTitle} onChange={handleChange} name={'currentProposalTitle'} placeholder={'Proposal Title'} />
-            <input type={'text'} value={currentProposalDocument} onChange={handleChange} name={'currentProposalDocument'} placeholder={'Proposal Document'} />
-            <button onClick={handleAddProposal} >Add Proposal</button>
-            <br />
-            {renderAllProposals(proposals)}
-            <br />
-            <button onClick={handleCreateProposals}>Create Proposal</button>
-
-            <br />
-            <button onClick={getAllBallots}>get all ballots</button>
-
-            <br />
-            <input type={'text'} value={ballotAddress} onChange={handleChange} name={'ballotAddress'} placeholder={'Ballot Address'} />
-            <button onClick={getAllProposals} >Get all proposals</button>
-
-            <br/>
-            <input type={'number'} value={ballotId} onChange={handleChange} name={'ballotId'} placeholder={'Ballot ID'} />
-            <button onClick={cancelBallot} >Cancel Ballot</button>
-
-            <br/>
-            <input type={'number'} value={ballotId} onChange={handleChange} name={'ballotId'} placeholder={'Ballot ID'} />
-            <button onClick={startVoting}>Start Voting</button>
-            <button onClick={endVoting}>End Voting</button>
-
-            <br />
-            <input type={'text'} value={ballotAddress} onChange={handleChange} name={'ballotAddress'} placeholder={'Ballot Address'} />
-            <button onClick={checkWinner} >Get Ballot Winner</button>
-
-            <br />
-            <input type={'text'} value={proposalId} onChange={handleChange} name={'proposalId'} placeholder={'Proposal ID'} />
-            <button onClick={()=>castVote(proposalId)} >Cast Vote</button>
-            <ViewBallots />
+            </div>
+            <Footer />
             </>
             :
-            <Loading />
+            errorEncountered?
+                <ErrorPage message={errorMessage} />
+                :
+                <Loading />
         }
       </div>
     );
@@ -342,14 +509,3 @@ class App extends Component {
 }
 
 export default App;
-
-
-const ViewBallots = () => {
-
-  return (
-    <div className={'view-ballots'}>
-
-    </div>
-  )
-
-}
